@@ -84,7 +84,7 @@ class	Tree
 		bool		_dormant;
 		bool		_in_shadow;
 	public:
-		Tree() : _owner(), _size()
+		Tree() : _owner(), _size(), _in_shadow(false)
 		{
 			size_t	tmp;
 			cin >> _index;
@@ -97,12 +97,14 @@ class	Tree
 		Tree(e_player owner, e_treesize size, size_t index, bool dormant) : _owner(owner),
 																			_size(size),
 																			_index(index),
-																			_dormant(dormant)
+																			_dormant(dormant),
+																			_in_shadow(false)
 		{}
 		Tree(const Tree& other) :	_owner(other._owner),
 									_size(other._size),
 									_index(other._index),
-									_dormant(other._dormant)
+									_dormant(other._dormant),
+									_in_shadow(other._in_shadow)
 		{}
 		size_t	GetIndex()
 		{
@@ -123,6 +125,18 @@ class	Tree
 		bool		GetDormant()
 		{
 			return (_dormant);
+		}
+		void		SetShadow(bool value)
+		{
+			this->_in_shadow = value;
+		}
+		bool		GetShadow(void)
+		{
+			return (this->_in_shadow);
+		}
+		e_player	GetOwner(void)
+		{
+			return (this->_owner);
 		}
 };
 
@@ -207,6 +221,21 @@ class	Game
 			{
 				if (_trees[i].GetSize() == TREE_DEAD)
 					_cells[_trees[i].GetIndex()].SetTree(NULL);
+			}
+		}
+		void			UpdateSpookyShadows()
+		{
+			for (size_t i = 0; i < _trees.size(); i++)
+			{
+				Cell*	shadow_caster = &_cells[_trees[i].GetIndex()];
+				for (size_t j = 0; j < _trees[i].GetSize(); j++)
+				{
+					size_t	neighbour_index = shadow_caster->GetNeighbourIndex(_sundirection);
+					Tree*	tree = _cells[neighbour_index].GetTree();
+					if (tree && tree->GetSize() <= _trees[i].GetSize())
+						tree->SetShadow(true);
+					shadow_caster = &_cells[neighbour_index];
+				}
 			}
 		}
 	public:
@@ -295,7 +324,11 @@ class	Game
 		}
 		size_t	CalculateSunGain(e_player player)
 		{
+			size_t	sun_gained = 0;
 
+			for (size_t i = 0; i < _trees.size(); i++)
+				sun_gained += (_trees[i].GetOwner() == player && _trees[i].GetShadow() == false) * _trees[i].GetSize();
+			return (sun_gained);
 		}
 };
 
