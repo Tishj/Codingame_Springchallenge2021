@@ -432,26 +432,29 @@ class	ActionBuilder
 		{
 			if (format == "WAIT")
 				return (new Wait());
-			if (format.size() >= 4 && format.substr(0,4) == "SEED")
+			else if (format.size() >= sizeof("SEED")-1 && format.substr(0, sizeof("SEED")-1) == "SEED")
 			{
 				vector<string>	parts = split(format, ' ');
 				if (parts.size() == 3)
 					return (new Seed(stoi(parts[1]), stoi(parts[2])));
 			}
-			if (format.size() >= 4 && format.substr(0,4) == "GROW")
+			else if (format.size() >= sizeof("GROW")-1 && format.substr(0, sizeof("GROW")-1) == "GROW")
 			{
 				vector<string>	parts = split(format, ' ');
 				if (parts.size() == 2)
 					return (new Grow(stoi(parts[1])));
 			}
-			if (format.size() >= sizeof("COMPLETE") && format.substr(0, sizeof("COMPLETE")) == "COMPLETE")
+			else if (format.size() >= sizeof("COMPLETE")-1 && format.substr(0, sizeof("COMPLETE")-1) == "COMPLETE")
 			{
 				vector<string>	parts = split(format, ' ');
 				if (parts.size() == 2)
 					return (new Complete(stoi(parts[1])));
 			}
-			cerr << "FORMAT NOT RECOGNIZED!" << std::endl;
-			return (NULL);
+			else
+			{
+				cerr << "FORMAT NOT RECOGNIZED! | " << format << std::endl;
+				return (NULL);
+			}
 		}
 };
 
